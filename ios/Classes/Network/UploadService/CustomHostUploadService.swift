@@ -14,7 +14,7 @@ class CustomHostUploadService: NSObject, SpeedService {
     private var current: ((Speed, Speed) -> ())!
     private var final: ((Result<Speed, NetworkError>) -> ())!
     
-    func test(_ url: URL, fileSize: Int, timeout: TimeInterval, current: @escaping (Speed, Speed) -> (), final: @escaping (Result<Speed, NetworkError>) -> ()) {
+    func test(_ url: URL, fileSize: Int, token: String?,  timeout: TimeInterval, current: @escaping (Speed, Speed) -> (), final: @escaping (Result<Speed, NetworkError>) -> ()) {
         self.current = current
         self.final = final
         var request = URLRequest(url: url)
@@ -24,6 +24,10 @@ class CustomHostUploadService: NSObject, SpeedService {
                                        "Content-Length": "\(fileSize)",
                                        "Connection": "keep-alive"]
         
+        if token != nil {
+            request.addValue(token!, forHTTPHeaderField: "Authorization")
+
+        }
         URLSession(configuration: sessionConfiguration(timeout: timeout / 1000), delegate: self, delegateQueue: OperationQueue.main)
             .uploadTask(with: request, from: Data(count: fileSize))
             .resume()

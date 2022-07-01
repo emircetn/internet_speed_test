@@ -21,23 +21,28 @@ public class SwiftInternetSpeedTestPlugin: NSObject, FlutterPlugin {
         let argsMap = arguments as! [String: Any]
         let args = argsMap["id"] as! Int
         var fileSize = 200
+        var token : String? = nil
         if let fileSizeArgument = argsMap["fileSize"] as? Int {
             fileSize = fileSizeArgument
         }
+        if let tokenArgument = argsMap["token"] as? String {
+            token = tokenArgument
+        }
+
         print("file is of size \(fileSize) Bytes")
         switch args {
         case 0:
-            startListening(args: args, flutterResult: result, methodName: "startDownloadTesting", testServer: argsMap["testServer"] as! String, fileSize: fileSize)
+            startListening(args: args, token: nil,  flutterResult: result, methodName: "startDownloadTesting", testServer: argsMap["testServer"] as! String, fileSize: fileSize)
             break
         case 1:
-            startListening(args: args, flutterResult: result, methodName: "startUploadTesting", testServer: argsMap["testServer"] as! String, fileSize: fileSize)
+            startListening(args: args, token: token, flutterResult: result, methodName: "startUploadTesting", testServer: argsMap["testServer"] as! String, fileSize: fileSize)
             break
         default:
             break
         }
     }
     
-    func startListening(args: Any, flutterResult: FlutterResult, methodName:String, testServer: String, fileSize: Int) {
+    func startListening(args: Any, token: String?, flutterResult: FlutterResult, methodName:String, testServer: String, fileSize: Int) {
         print("Method name is \(methodName)")
         let currentListenerId = args as! Int
         print("id is \(currentListenerId)")
@@ -95,7 +100,7 @@ public class SwiftInternetSpeedTestPlugin: NSObject, FlutterPlugin {
                     
 //                    break
                 case "startUploadTesting":
-                    self.speedTest.runUploadTest(for: URL(string: testServer)!, size: fileSize, timeout: 20000, current: { (currentSpeed) in
+                    self.speedTest.runUploadTest(for: URL(string: testServer)!, size: fileSize,token: token, timeout: 20000, current: { (currentSpeed) in
                                                     var argsMap: [String: Any] = [:]
                                                     argsMap["id"] = currentListenerId
                                                     argsMap["transferRate"] = self.getSpeedInBytes(speed: currentSpeed)
